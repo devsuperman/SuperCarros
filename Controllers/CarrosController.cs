@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using SuperCarros.Viewmodels;
 using SuperCarros.Models;
 using SuperCarros.Data;
 
@@ -7,21 +8,21 @@ namespace SuperCarros.Controllers
 {
     public class CarrosController : Controller
     {
-        private readonly Contexto _context;
+        private readonly Contexto _db;
 
-        public CarrosController(Contexto context)
+        public CarrosController(Contexto db)
         {
-            _context = context;
+            _db = db;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Carros.ToListAsync());
+            return View(await _db.Carros.ToListAsync());
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var carro = await _context.Carros.FirstOrDefaultAsync(m => m.Id == id);
+            var carro = await _db.Carros.FirstOrDefaultAsync(m => m.Id == id);
             return View(carro);
         }
 
@@ -37,8 +38,11 @@ namespace SuperCarros.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(carro);
-                await _context.SaveChangesAsync();
+                carro.DataDeRegistro = DateTime.Now;
+
+                _db.Add(carro);
+                await _db.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -47,28 +51,29 @@ namespace SuperCarros.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var carro = await _context.Carros.FindAsync(id);
-            return View(carro);
+            var model = await _db.Carros.FindAsync(id);
+            return View(model);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Carro carro)
+        public async Task<IActionResult> Edit(Carro model)
         {
             if (ModelState.IsValid)
             {
-                _context.Update(carro);
-                await _context.SaveChangesAsync();
+                _db.Update(model);
+                await _db.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(carro);
+            return View(model);
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var carro = await _context.Carros.FirstOrDefaultAsync(m => m.Id == id);
+            var carro = await _db.Carros.FirstOrDefaultAsync(m => m.Id == id);
             return View(carro);
         }
 
@@ -76,10 +81,10 @@ namespace SuperCarros.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var carro = await _context.Carros.FindAsync(id);
+            var carro = await _db.Carros.FindAsync(id);
             
-            _context.Carros.Remove(carro);
-            await _context.SaveChangesAsync();
+            _db.Carros.Remove(carro);
+            await _db.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }

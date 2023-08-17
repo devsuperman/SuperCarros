@@ -15,7 +15,7 @@ namespace SuperCarros.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("index","carros");
         }
 
         public IActionResult Privacy()
