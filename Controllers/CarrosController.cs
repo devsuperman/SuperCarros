@@ -51,24 +51,37 @@ namespace SuperCarros.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var model = await _db.Carros.FindAsync(id);
-            return View(model);
+            var carro = await _db.Carros.FindAsync(id);
+
+            var viewmodel = new EditarCarroViewmodel
+            {
+                Id = carro.Id,
+                Nome = carro.Nome,
+                Ativo = carro.Ativo
+            };
+
+            return View(viewmodel);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Carro model)
+        public async Task<IActionResult> Edit(EditarCarroViewmodel viewmodel)
         {
             if (ModelState.IsValid)
             {
-                _db.Update(model);
+                var carro = await _db.Carros.FindAsync(viewmodel.Id);
+
+                carro.Nome = viewmodel.Nome;
+                carro.Ativo = viewmodel.Ativo;
+
+                _db.Update(carro);
                 await _db.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(model);
+            return View(viewmodel);
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -82,7 +95,7 @@ namespace SuperCarros.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var carro = await _db.Carros.FindAsync(id);
-            
+
             _db.Carros.Remove(carro);
             await _db.SaveChangesAsync();
 
